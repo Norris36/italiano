@@ -1,4 +1,7 @@
 import pandas as pd
+import io
+from datetime import datetime
+import os
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
@@ -9,9 +12,6 @@ from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT, TA_JUSTIFY
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-import io
-from datetime import datetime
-import os
 
 class QuizPDFGenerator:
     def __init__(self, dataframe: pd.DataFrame, output_filename: str = "quiz.pdf", 
@@ -428,6 +428,3 @@ def main():
         print(f"\n✗ Error generating PDF: {e}")
         print("Make sure you have the required libraries installed:")
         print("pip install pandas reportlab PyPDF2")
-
-if __name__ == "__main__":
-    main()
