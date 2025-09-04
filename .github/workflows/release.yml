@@ -1,0 +1,118 @@
+name: Create Dictionary Release
+
+on:
+  push:
+    branches: [ main ]
+    paths: 
+      - 'version.py'
+      - 'dictionary.json'
+      - 'dictionary_manager.py'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch all history for changelog
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests pandas
+    
+    - name: Extract version from version.py
+      id: get_version
+      run: |
+        VERSION=$(python -c "from version import VERSION; print(VERSION)")
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+    
+    - name: Check if tag exists
+      id: check_tag
+      run: |
+        if git rev-parse "v${{ steps.get_version.outputs.version }}" >/dev/null 2>&1; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Generate dictionary stats
+      id: stats
+      if: steps.check_tag.outputs.exists == 'false'
+      run: |
+        python -c "
+        from dictionary_manager import ItalianDictionary
+        dict_mgr = ItalianDictionary('dictionary.json')
+        stats = dict_mgr.get_stats()
+        print(f'TOTAL_WORDS={stats[\"total_words\"]}')
+        print(f'VERBS_WITH_CONJ={stats[\"verbs_with_conjugations\"]}')
+        print(f'CATEGORIES={len(stats[\"by_category\"])}')
+        " >> $GITHUB_OUTPUT
+    
+    - name: Generate changelog from version history
+      id: changelog
+      if: steps.check_tag.outputs.exists == 'false'
+      run: |
+        python -c "
+        from version import VersionManager
+        vm = VersionManager()
+        changelog = vm.generate_changelog_markdown()
+        with open('changelog.md', 'w') as f:
+            f.write(changelog)
+        "
+        
+        echo 'changelog<<EOF' >> $GITHUB_OUTPUT
+        cat changelog.md >> $GITHUB_OUTPUT
+        echo 'EOF' >> $GITHUB_OUTPUT
+    
+    - name: Create release assets
+      if: steps.check_tag.outputs.exists == 'false'
+      run: |
+        python -c "
+        from dictionary_manager import ItalianDictionary
+        dict_mgr = ItalianDictionary('dictionary.json')
+        dict_mgr.export_to_csv('italian-dictionary-${{ steps.get_version.outputs.version }}.csv')
+        dict_mgr.export_conjugations_csv('italian-conjugations-${{ steps.get_version.outputs.version }}.csv')
+        dict_mgr.save_dictionary('dictionary-${{ steps.get_version.outputs.version }}.json')
+        "
+    
+    - name: Create Release
+      if: steps.check_tag.outputs.exists == 'false'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.get_version.outputs.tag }}
+        name: 🇮🇹 Italian Dictionary ${{ steps.get_version.outputs.tag }}
+        body: |
+          # Italian Dictionary Release ${{ steps.get_version.outputs.tag }}
+          
+          ## 📊 Dictionary Statistics
+          - **Total Words**: ${{ steps.stats.outputs.TOTAL_WORDS }}
+          - **Verbs with Conjugations**: ${{ steps.stats.outputs.VERBS_WITH_CONJ }}
+          - **Categories**: ${{ steps.stats.outputs.CATEGORIES }}
+          
+          ## 📥 Download Options
+          - `dictionary-${{ steps.get_version.outputs.version }}.json` - Complete dictionary database
+          - `italian-dictionary-${{ steps.get_version.outputs.version }}.csv` - Word translations
+          - `italian-conjugations-${{ steps.get_version.outputs.version }}.csv` - Verb conjugations
+          
+          ## 🔄 Changelog
+          ${{ steps.changelog.outputs.changelog }}
+          
+          ---
+          
+          **⚠️ Disclaimer**: Translations are continuously being updated and refined. Please verify important translations with authoritative sources.
+        files: |
+          dictionary-${{ steps.get_version.outputs.version }}.json
+          italian-dictionary-${{ steps.get_version.outputs.version }}.csv
+          italian-conjugations-${{ steps.get_version.outputs.version }}.csv
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
