@@ -186,11 +186,11 @@ class QuizPDFGenerator:
         """Generate dense, tabular PDF that fits everything on one page."""
         c = canvas.Canvas(self.output_filename, pagesize=self.page_size)
         
-        # Minimal margins for maximum space utilization
-        left_margin = 20
-        right_margin = 20  
-        top_margin = 30
-        bottom_margin = 40
+        # Ultra-minimal margins for maximum space utilization
+        left_margin = 15
+        right_margin = 15  
+        top_margin = 20
+        bottom_margin = 25
         
         # Calculate available space
         page_width = self.width - left_margin - right_margin
@@ -199,20 +199,20 @@ class QuizPDFGenerator:
         # Start position
         y_position = self.height - top_margin
         
-        # Compact title
-        c.setFont("Helvetica-Bold", 14)
+        # Ultra-compact title
+        c.setFont("Helvetica-Bold", 11)
         c.setFillColor(colors.HexColor('#2C3E50'))
         c.drawString(left_margin, y_position, f"{self.title} - {datetime.now().strftime('%m/%d/%Y')}")
-        y_position -= 20
+        y_position -= 15
         
         # Calculate space per question
         num_questions = len(self.df)
-        answer_space_needed = 40  # Space reserved for answers at bottom
+        answer_space_needed = 20  # Minimal space for answers at bottom
         available_question_space = y_position - bottom_margin - answer_space_needed
-        space_per_question = available_question_space / num_questions if num_questions > 0 else 50
+        space_per_question = available_question_space / num_questions if num_questions > 0 else 40
         
-        # Ensure minimum space per question
-        space_per_question = max(space_per_question, 25)
+        # Ensure minimum space per question but much more compact
+        space_per_question = max(space_per_question, 18)
         
         # Questions in tabular format
         c.setFont("Helvetica", 8)
@@ -224,8 +224,8 @@ class QuizPDFGenerator:
                 
             question_num = idx + 1
             
-            # Question number (compact)
-            c.setFont("Helvetica-Bold", 9)
+            # Question number (ultra-compact)
+            c.setFont("Helvetica-Bold", 8)
             c.drawString(left_margin, y_position, f"{question_num}.")
             
             # Question and task text in one line if possible
@@ -238,95 +238,53 @@ class QuizPDFGenerator:
                 combined_text += f" [{task_text}]"
             
             # Truncate if too long to fit in available width
-            c.setFont("Helvetica", 8)
-            max_width = page_width - 40  # Leave space for question number and answer line
+            c.setFont("Helvetica", 7)
+            max_width = page_width - 25  # Leave minimal space for question number
             
-            # Word wrap to fit in 2 lines maximum
-            words = combined_text.split()
-            line1 = ""
-            line2 = ""
+            # Single line only - truncate if needed
+            if c.stringWidth(combined_text, "Helvetica", 7) > max_width:
+                # Truncate to fit
+                while c.stringWidth(combined_text + "...", "Helvetica", 7) > max_width and len(combined_text) > 10:
+                    combined_text = combined_text[:-1]
+                combined_text += "..."
             
-            for word in words:
-                test_line1 = line1 + " " + word if line1 else word
-                if c.stringWidth(test_line1, "Helvetica", 8) <= max_width:
-                    line1 = test_line1
-                else:
-                    test_line2 = line2 + " " + word if line2 else word
-                    if c.stringWidth(test_line2, "Helvetica", 8) <= max_width:
-                        line2 = test_line2
-                    else:
-                        break  # Skip remaining words if they don't fit
-            
-            # Draw the text
-            c.drawString(left_margin + 15, y_position, line1)
-            if line2:
-                y_position -= 10
-                c.drawString(left_margin + 15, y_position, line2)
+            # Draw the text in single line
+            c.drawString(left_margin + 12, y_position, combined_text)
             
             # Answer line (from edge to edge)
-            y_position -= 8
+            y_position -= 6
             c.setStrokeColor(colors.grey)
-            c.setLineWidth(0.5)
+            c.setLineWidth(0.3)
             c.line(left_margin, y_position, self.width - right_margin, y_position)
             
-            # Move to next question
-            y_position -= max(space_per_question - 18, 7)  # Adjust spacing dynamically
+            # Move to next question with minimal spacing
+            y_position -= max(space_per_question - 12, 5)
         
-        # Answers at the bottom (very compact)
-        answer_y = bottom_margin + 25
-        c.setFont("Helvetica", 6)
-        c.setFillColor(colors.HexColor('#444444'))
+        # Simple answers at very bottom - upside down
+        c.saveState()
+        c.translate(self.width/2, 15)  # Very bottom
+        c.rotate(180)
+        c.setFont("Helvetica", 5)
+        c.setFillColor(colors.HexColor('#666666'))
         
-        # Create answer text in multiple columns if needed
-        answers = []
+        # Create simple "1. answer 2. answer" format
+        answer_parts = []
         for idx, row in self.df.iterrows():
             question_num = idx + 1
             answer = str(row['answer']) if pd.notna(row['answer']) else "N/A"
-            answers.append(f"{question_num}: {answer}")
+            # Truncate long answers
+            if len(answer) > 15:
+                answer = answer[:12] + "..."
+            answer_parts.append(f"{question_num}. {answer}")
         
-        # Calculate columns needed
-        chars_per_line = int(page_width / 3)  # Approximate characters per line at size 6
-        col_width = page_width / 3
+        # Join with spaces, truncate if too long for page width
+        answer_line = " ".join(answer_parts)
+        max_chars = int(page_width / 2.2)  # Approximate characters that fit
+        if len(answer_line) > max_chars:
+            answer_line = answer_line[:max_chars - 3] + "..."
         
-        # Draw answers in 3 columns
-        col = 0
-        x_positions = [left_margin, left_margin + col_width, left_margin + 2 * col_width]
-        current_y = answer_y
-        
-        for i, answer_text in enumerate(answers):
-            # Truncate answer if too long
-            if len(answer_text) > chars_per_line - 5:
-                answer_text = answer_text[:chars_per_line - 8] + "..."
-            
-            c.drawString(x_positions[col], current_y, answer_text)
-            
-            # Move to next column or next row
-            col += 1
-            if col >= 3:
-                col = 0
-                current_y -= 8
-                if current_y < bottom_margin:
-                    break  # Stop if running out of space
-        
-        # Add upside-down answers at very bottom
-        if len(answers) <= 15:  # Only if we have reasonable number of answers
-            c.saveState()
-            c.translate(self.width/2, 20)
-            c.rotate(180)
-            c.setFont("Helvetica", 5)
-            c.setFillColor(colors.HexColor('#888888'))
-            
-            # Single line of answers
-            answer_line = " | ".join([f"{i+1}:{ans.split(': ', 1)[1] if ': ' in ans else ans}" 
-                                     for i, ans in enumerate(answers)])
-            
-            # Truncate if too long
-            max_chars = int(page_width / 2.5)
-            if len(answer_line) > max_chars:
-                answer_line = answer_line[:max_chars - 3] + "..."
-            
-            c.drawCentredString(0, 0, answer_line)
-            c.restoreState()
+        c.drawCentredString(0, 0, answer_line)
+        c.restoreState()
         
         # Save the PDF
         c.save()
