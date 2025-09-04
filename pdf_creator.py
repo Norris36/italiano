@@ -178,45 +178,8 @@ class QuizPDFGenerator:
     
     def generate_pdf(self):
         """Generate the complete PDF with upside-down answers."""
-        # Create a temporary PDF with the main content
-        temp_buffer = io.BytesIO()
-        doc = SimpleDocTemplate(
-            temp_buffer,
-            pagesize=self.page_size,
-            rightMargin=72,
-            leftMargin=72,
-            topMargin=72,
-            bottomMargin=72
-        )
-        
-        # Build the main content
-        story = self.create_quiz_content()
-        
-        # Add page break before answers
-        story.append(PageBreak())
-        
-        # Build the document
-        doc.build(story)
-        
-        # Now create the final PDF with upside-down answers
-        temp_buffer.seek(0)
-        existing_pdf = temp_buffer.getvalue()
-        
-        # Create the final PDF
-        c = canvas.Canvas(self.output_filename, pagesize=self.page_size)
-        
-        # First, copy all pages from the temporary PDF
-        from PyPDF2 import PdfReader, PdfWriter
-        
-        # Read the temporary PDF
-        temp_pdf = PdfReader(io.BytesIO(existing_pdf))
-        
-        # Create a new PDF with the content and upside-down answers
-        from reportlab.pdfgen import canvas
-        
-        # Alternative approach: Generate everything in one go with custom canvas
+        # Use the canvas approach directly to avoid io conflicts
         self._generate_complete_pdf_with_canvas()
-        
         print(f"PDF generated successfully: {self.output_filename}")
     
     def _generate_complete_pdf_with_canvas(self):
