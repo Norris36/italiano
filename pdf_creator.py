@@ -207,7 +207,6 @@ class QuizPDFGenerator:
         
         # First, copy all pages from the temporary PDF
         from PyPDF2 import PdfReader, PdfWriter
-        import io
         
         # Read the temporary PDF
         temp_pdf = PdfReader(io.BytesIO(existing_pdf))

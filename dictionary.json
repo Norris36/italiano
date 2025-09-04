@@ -1,0 +1,272 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "last_updated": "2025-09-04",
+    "total_words": 20,
+    "description": "English-Italian dictionary with verb conjugations following Pareto principle"
+  },
+  "words": {
+    "be": {
+      "type": "verb",
+      "translations": ["essere"],
+      "conjugations": {
+        "essere": {
+          "presente": {
+            "io": "sono",
+            "tu": "sei", 
+            "lui/lei": "è",
+            "noi": "siamo",
+            "voi": "siete",
+            "loro": "sono"
+          },
+          "passato_prossimo": {
+            "io": "sono stato/a",
+            "tu": "sei stato/a",
+            "lui/lei": "è stato/a", 
+            "noi": "siamo stati/e",
+            "voi": "siete stati/e",
+            "loro": "sono stati/e"
+          },
+          "imperfetto": {
+            "io": "ero",
+            "tu": "eri",
+            "lui/lei": "era",
+            "noi": "eravamo", 
+            "voi": "eravate",
+            "loro": "erano"
+          }
+        }
+      },
+      "frequency_rank": 1,
+      "category": "essential"
+    },
+    "have": {
+      "type": "verb",
+      "translations": ["avere"],
+      "conjugations": {
+        "avere": {
+          "presente": {
+            "io": "ho",
+            "tu": "hai",
+            "lui/lei": "ha",
+            "noi": "abbiamo",
+            "voi": "avete", 
+            "loro": "hanno"
+          },
+          "passato_prossimo": {
+            "io": "ho avuto",
+            "tu": "hai avuto",
+            "lui/lei": "ha avuto",
+            "noi": "abbiamo avuto",
+            "voi": "avete avuto",
+            "loro": "hanno avuto"
+          },
+          "imperfetto": {
+            "io": "avevo",
+            "tu": "avevi",
+            "lui/lei": "aveva",
+            "noi": "avevamo",
+            "voi": "avevate",
+            "loro": "avevano"
+          }
+        }
+      },
+      "frequency_rank": 2,
+      "category": "essential"
+    },
+    "go": {
+      "type": "verb", 
+      "translations": ["andare"],
+      "conjugations": {
+        "andare": {
+          "presente": {
+            "io": "vado",
+            "tu": "vai",
+            "lui/lei": "va", 
+            "noi": "andiamo",
+            "voi": "andate",
+            "loro": "vanno"
+          },
+          "passato_prossimo": {
+            "io": "sono andato/a",
+            "tu": "sei andato/a", 
+            "lui/lei": "è andato/a",
+            "noi": "siamo andati/e",
+            "voi": "siete andati/e",
+            "loro": "sono andati/e"
+          }
+        }
+      },
+      "frequency_rank": 3,
+      "category": "essential"
+    },
+    "do": {
+      "type": "verb",
+      "translations": ["fare"],
+      "conjugations": {
+        "fare": {
+          "presente": {
+            "io": "faccio",
+            "tu": "fai", 
+            "lui/lei": "fa",
+            "noi": "facciamo",
+            "voi": "fate",
+            "loro": "fanno"
+          }
+        }
+      },
+      "frequency_rank": 4,
+      "category": "essential"
+    },
+    "say": {
+      "type": "verb",
+      "translations": ["dire", "parlare"],
+      "conjugations": {
+        "dire": {
+          "presente": {
+            "io": "dico",
+            "tu": "dici",
+            "lui/lei": "dice",
+            "noi": "diciamo",
+            "voi": "dite", 
+            "loro": "dicono"
+          }
+        }
+      },
+      "frequency_rank": 5,
+      "category": "essential"
+    },
+    "see": {
+      "type": "verb",
+      "translations": ["vedere"],
+      "conjugations": {
+        "vedere": {
+          "presente": {
+            "io": "vedo",
+            "tu": "vedi",
+            "lui/lei": "vede",
+            "noi": "vediamo",
+            "voi": "vedete",
+            "loro": "vedono"
+          }
+        }
+      },
+      "frequency_rank": 6,
+      "category": "essential"
+    },
+    "know": {
+      "type": "verb",
+      "translations": ["sapere", "conoscere"],
+      "conjugations": {
+        "sapere": {
+          "presente": {
+            "io": "so",
+            "tu": "sai",
+            "lui/lei": "sa",
+            "noi": "sappiamo", 
+            "voi": "sapete",
+            "loro": "sanno"
+          }
+        },
+        "conoscere": {
+          "presente": {
+            "io": "conosco",
+            "tu": "conosci",
+            "lui/lei": "conosce",
+            "noi": "conosciamo",
+            "voi": "conoscete",
+            "loro": "conoscono"
+          }
+        }
+      },
+      "frequency_rank": 7,
+      "category": "essential", 
+      "notes": "sapere = know facts, conoscere = know people/places"
+    },
+    "hello": {
+      "type": "noun",
+      "translations": ["ciao", "salve"],
+      "frequency_rank": 8,
+      "category": "greetings"
+    },
+    "goodbye": {
+      "type": "noun", 
+      "translations": ["arrivederci", "ciao"],
+      "frequency_rank": 9,
+      "category": "greetings"
+    },
+    "thank you": {
+      "type": "phrase",
+      "translations": ["grazie", "ti ringrazio"],
+      "frequency_rank": 10,
+      "category": "politeness"
+    },
+    "please": {
+      "type": "adverb",
+      "translations": ["per favore", "prego"],
+      "frequency_rank": 11, 
+      "category": "politeness"
+    },
+    "water": {
+      "type": "noun",
+      "translations": ["acqua"],
+      "gender": "feminine",
+      "frequency_rank": 12,
+      "category": "basic_needs"
+    },
+    "food": {
+      "type": "noun",
+      "translations": ["cibo", "mangiare"],
+      "frequency_rank": 13,
+      "category": "basic_needs"
+    },
+    "house": {
+      "type": "noun", 
+      "translations": ["casa"],
+      "gender": "feminine",
+      "frequency_rank": 14,
+      "category": "places"
+    },
+    "money": {
+      "type": "noun",
+      "translations": ["denaro", "soldi"],
+      "frequency_rank": 15,
+      "category": "basic_needs"
+    },
+    "time": {
+      "type": "noun",
+      "translations": ["tempo", "ora"],
+      "frequency_rank": 16,
+      "category": "concepts",
+      "notes": "tempo = time in general, ora = specific time"
+    },
+    "day": {
+      "type": "noun",
+      "translations": ["giorno"],
+      "gender": "masculine", 
+      "frequency_rank": 17,
+      "category": "time"
+    },
+    "night": {
+      "type": "noun",
+      "translations": ["notte"],
+      "gender": "feminine",
+      "frequency_rank": 18,
+      "category": "time"
+    },
+    "good": {
+      "type": "adjective",
+      "translations": ["buono", "bene"],
+      "frequency_rank": 19,
+      "category": "descriptions",
+      "notes": "buono = good (adjective), bene = good/well (adverb)"
+    },
+    "bad": {
+      "type": "adjective",
+      "translations": ["cattivo", "male"],
+      "frequency_rank": 20,
+      "category": "descriptions",
+      "notes": "cattivo = bad (adjective), male = bad/badly (adverb)"
+    }
+  }
+}
