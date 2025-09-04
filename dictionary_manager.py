@@ -156,6 +156,46 @@ class ItalianDictionary:
         
         return conjugations
     
+    def check_conjugations(self, conjugations: Dict) -> bool:
+        """
+        Check that verb conjugations follow proper Italian format
+        ~~~
+        - Validate all required pronouns are present
+        - Check structure matches expected format
+        - Ensure consistency across tenses
+        ~~~
+        returns: bool indicating if conjugations are valid
+        """
+        required_pronouns = {"io", "tu", "lui/lei", "noi", "voi", "loro"}
+        
+        if not isinstance(conjugations, dict):
+            return False
+        
+        # Check each Italian verb in conjugations
+        for italian_verb, tenses in conjugations.items():
+            if not isinstance(tenses, dict):
+                return False
+            
+            # Check each tense
+            for tense_name, persons in tenses.items():
+                if not isinstance(persons, dict):
+                    return False
+                
+                # Check that all required pronouns are present
+                person_keys = set(persons.keys())
+                if not required_pronouns.issubset(person_keys):
+                    missing = required_pronouns - person_keys
+                    print(f"Missing pronouns in {italian_verb} {tense_name}: {missing}")
+                    return False
+                
+                # Check that all values are strings (conjugated forms)
+                for pronoun, conjugated_form in persons.items():
+                    if not isinstance(conjugated_form, str) or not conjugated_form.strip():
+                        print(f"Invalid conjugation for {italian_verb} {tense_name} {pronoun}")
+                        return False
+        
+        return True
+    
     def add_word(self, english_word: str, word_type: str, translations: List[str], 
                  conjugations: Dict = None, **kwargs) -> None:
         """
@@ -176,7 +216,10 @@ class ItalianDictionary:
         
         # Add optional fields
         if conjugations and word_type == 'verb':
-            word_entry["conjugations"] = conjugations
+            if self.check_conjugations(conjugations):
+                word_entry["conjugations"] = conjugations
+            else:
+                raise ValueError(f"Invalid conjugation format for verb '{english_word}'. Must include: io, tu, lui/lei, noi, voi, loro")
         
         if 'gender' in kwargs:
             word_entry["gender"] = kwargs['gender']
@@ -193,6 +236,7 @@ class ItalianDictionary:
         Add conjugations for specific verb and tense
         ~~~
         - Find existing verb entry
+        - Validate conjugation format
         - Add or update conjugation data
         - Update metadata
         ~~~
@@ -204,6 +248,11 @@ class ItalianDictionary:
         
         if word_data.get('type') != 'verb':
             raise ValueError(f"Word '{english_verb}' is not a verb")
+        
+        # Validate the conjugation format
+        test_conjugations = {italian_verb: {tense: conjugations}}
+        if not self.check_conjugations(test_conjugations):
+            raise ValueError(f"Invalid conjugation format. Must include: io, tu, lui/lei, noi, voi, loro")
         
         if 'conjugations' not in word_data:
             word_data['conjugations'] = {}
