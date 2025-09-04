@@ -183,129 +183,153 @@ class QuizPDFGenerator:
         print(f"PDF generated successfully: {self.output_filename}")
     
     def _generate_complete_pdf_with_canvas(self):
-        """Generate the complete PDF using canvas for better control."""
+        """Generate dense, tabular PDF that fits everything on one page."""
         c = canvas.Canvas(self.output_filename, pagesize=self.page_size)
         
-        # Page 1: Questions
-        y_position = self.height - 72  # Start from top with margin
+        # Minimal margins for maximum space utilization
+        left_margin = 20
+        right_margin = 20  
+        top_margin = 30
+        bottom_margin = 40
         
-        # Title
-        c.setFont("Helvetica-Bold", 24)
-        c.setFillColor(colors.HexColor('#2C3E50'))
-        c.drawCentredString(self.width/2, y_position, self.title)
-        y_position -= 40
+        # Calculate available space
+        page_width = self.width - left_margin - right_margin
+        page_height = self.height - top_margin - bottom_margin
         
-        # Date and instructions
-        c.setFont("Helvetica", 10)
-        c.setFillColor(colors.black)
-        c.drawString(72, y_position, f"Date: {datetime.now().strftime('%B %d, %Y')}")
-        y_position -= 20
+        # Start position
+        y_position = self.height - top_margin
         
-        c.setFont("Helvetica-Oblique", 10)
-        c.drawString(72, y_position, "Instructions: Answer all questions. Check answers at the bottom when complete.")
-        y_position -= 40
-        
-        # Questions
-        for idx, row in self.df.iterrows():
-            question_num = idx + 1
-            
-            # Check if we need a new page
-            if y_position < 200:  # Leave space for answers
-                c.showPage()
-                y_position = self.height - 72
-            
-            # Question number
-            c.setFont("Helvetica-Bold", 12)
-            c.setFillColor(colors.HexColor('#2C3E50'))
-            c.drawString(72, y_position, f"Question {question_num}")
-            y_position -= 20
-            
-            # Question text
-            if pd.notna(row['question']) and str(row['question']).strip():
-                c.setFont("Helvetica", 11)
-                c.setFillColor(colors.black)
-                # Wrap long text
-                text = str(row['question'])
-                words = text.split()
-                line = ""
-                x_indent = 90
-                for word in words:
-                    test_line = line + " " + word if line else word
-                    if c.stringWidth(test_line, "Helvetica", 11) < (self.width - 144):
-                        line = test_line
-                    else:
-                        c.drawString(x_indent, y_position, line)
-                        y_position -= 15
-                        line = word
-                if line:
-                    c.drawString(x_indent, y_position, line)
-                    y_position -= 20
-            
-            # Task text
-            if pd.notna(row['task']) and str(row['task']).strip():
-                c.setFont("Helvetica-Oblique", 10)
-                c.setFillColor(colors.HexColor('#555555'))
-                task_text = f"Task: {str(row['task'])}"
-                # Wrap task text similarly
-                words = task_text.split()
-                line = ""
-                x_indent = 90
-                for word in words:
-                    test_line = line + " " + word if line else word
-                    if c.stringWidth(test_line, "Helvetica-Oblique", 10) < (self.width - 144):
-                        line = test_line
-                    else:
-                        c.drawString(x_indent, y_position, line)
-                        y_position -= 15
-                        line = word
-                if line:
-                    c.drawString(x_indent, y_position, line)
-                    y_position -= 20
-            
-            # Answer line
-            c.setStrokeColor(colors.grey)
-            c.line(90, y_position, self.width - 72, y_position)
-            y_position -= 35
-        
-        # New page for answers
-        c.showPage()
-        
-        # Draw answers upside down at the bottom
-        c.saveState()
-        
-        # Translate to bottom of page and rotate 180 degrees
-        c.translate(self.width/2, 150)
-        c.rotate(180)
-        
-        # Answer header
+        # Compact title
         c.setFont("Helvetica-Bold", 14)
         c.setFillColor(colors.HexColor('#2C3E50'))
-        c.drawCentredString(0, 0, "ANSWER KEY")
+        c.drawString(left_margin, y_position, f"{self.title} - {datetime.now().strftime('%m/%d/%Y')}")
+        y_position -= 20
         
-        # Answers
-        y_offset = 25
-        c.setFont("Helvetica", 9)
-        c.setFillColor(colors.HexColor('#666666'))
+        # Calculate space per question
+        num_questions = len(self.df)
+        answer_space_needed = 40  # Space reserved for answers at bottom
+        available_question_space = y_position - bottom_margin - answer_space_needed
+        space_per_question = available_question_space / num_questions if num_questions > 0 else 50
+        
+        # Ensure minimum space per question
+        space_per_question = max(space_per_question, 25)
+        
+        # Questions in tabular format
+        c.setFont("Helvetica", 8)
+        c.setFillColor(colors.black)
         
         for idx, row in self.df.iterrows():
+            if y_position <= bottom_margin + answer_space_needed:
+                break  # Stop if we're running out of space
+                
             question_num = idx + 1
-            answer = str(row['answer']) if pd.notna(row['answer']) else "No answer provided"
-            answer_text = f"Question {question_num}: {answer}"
             
-            # Center the answers
-            c.drawCentredString(0, y_offset, answer_text)
-            y_offset += 15
+            # Question number (compact)
+            c.setFont("Helvetica-Bold", 9)
+            c.drawString(left_margin, y_position, f"{question_num}.")
             
-            # Check if we need to wrap to multiple columns or pages
-            if y_offset > 120:
-                y_offset = 25
-                c.translate(200, 0)  # Move to next column
+            # Question and task text in one line if possible
+            question_text = str(row['question']) if pd.notna(row['question']) else ""
+            task_text = str(row['task']) if pd.notna(row['task']) else ""
+            
+            # Combine question and task
+            combined_text = question_text
+            if task_text and task_text != question_text:
+                combined_text += f" [{task_text}]"
+            
+            # Truncate if too long to fit in available width
+            c.setFont("Helvetica", 8)
+            max_width = page_width - 40  # Leave space for question number and answer line
+            
+            # Word wrap to fit in 2 lines maximum
+            words = combined_text.split()
+            line1 = ""
+            line2 = ""
+            
+            for word in words:
+                test_line1 = line1 + " " + word if line1 else word
+                if c.stringWidth(test_line1, "Helvetica", 8) <= max_width:
+                    line1 = test_line1
+                else:
+                    test_line2 = line2 + " " + word if line2 else word
+                    if c.stringWidth(test_line2, "Helvetica", 8) <= max_width:
+                        line2 = test_line2
+                    else:
+                        break  # Skip remaining words if they don't fit
+            
+            # Draw the text
+            c.drawString(left_margin + 15, y_position, line1)
+            if line2:
+                y_position -= 10
+                c.drawString(left_margin + 15, y_position, line2)
+            
+            # Answer line (from edge to edge)
+            y_position -= 8
+            c.setStrokeColor(colors.grey)
+            c.setLineWidth(0.5)
+            c.line(left_margin, y_position, self.width - right_margin, y_position)
+            
+            # Move to next question
+            y_position -= max(space_per_question - 18, 7)  # Adjust spacing dynamically
         
-        c.restoreState()
+        # Answers at the bottom (very compact)
+        answer_y = bottom_margin + 25
+        c.setFont("Helvetica", 6)
+        c.setFillColor(colors.HexColor('#444444'))
+        
+        # Create answer text in multiple columns if needed
+        answers = []
+        for idx, row in self.df.iterrows():
+            question_num = idx + 1
+            answer = str(row['answer']) if pd.notna(row['answer']) else "N/A"
+            answers.append(f"{question_num}: {answer}")
+        
+        # Calculate columns needed
+        chars_per_line = int(page_width / 3)  # Approximate characters per line at size 6
+        col_width = page_width / 3
+        
+        # Draw answers in 3 columns
+        col = 0
+        x_positions = [left_margin, left_margin + col_width, left_margin + 2 * col_width]
+        current_y = answer_y
+        
+        for i, answer_text in enumerate(answers):
+            # Truncate answer if too long
+            if len(answer_text) > chars_per_line - 5:
+                answer_text = answer_text[:chars_per_line - 8] + "..."
+            
+            c.drawString(x_positions[col], current_y, answer_text)
+            
+            # Move to next column or next row
+            col += 1
+            if col >= 3:
+                col = 0
+                current_y -= 8
+                if current_y < bottom_margin:
+                    break  # Stop if running out of space
+        
+        # Add upside-down answers at very bottom
+        if len(answers) <= 15:  # Only if we have reasonable number of answers
+            c.saveState()
+            c.translate(self.width/2, 20)
+            c.rotate(180)
+            c.setFont("Helvetica", 5)
+            c.setFillColor(colors.HexColor('#888888'))
+            
+            # Single line of answers
+            answer_line = " | ".join([f"{i+1}:{ans.split(': ', 1)[1] if ': ' in ans else ans}" 
+                                     for i, ans in enumerate(answers)])
+            
+            # Truncate if too long
+            max_chars = int(page_width / 2.5)
+            if len(answer_line) > max_chars:
+                answer_line = answer_line[:max_chars - 3] + "..."
+            
+            c.drawCentredString(0, 0, answer_line)
+            c.restoreState()
         
         # Save the PDF
         c.save()
-        print(f"PDF generated successfully: {self.output_filename}")
 
 def create_sample_dataframe():
     """Create a sample dataframe for testing."""
