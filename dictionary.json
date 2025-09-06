@@ -9,6 +9,8 @@
     "be": {
       "type": "verb",
       "translations": ["essere"],
+      "regularity": "irregular",
+      "auxiliary": "essere",
       "conjugations": {
         "essere": {
           "presente": {
@@ -37,12 +39,15 @@
           }
         }
       },
+      "missing_tenses": ["futuro", "condizionale", "congiuntivo", "imperativo"],
       "frequency_rank": 1,
       "category": "essential"
     },
     "have": {
       "type": "verb",
       "translations": ["avere"],
+      "regularity": "irregular",
+      "auxiliary": "avere",
       "conjugations": {
         "avere": {
           "presente": {
@@ -71,12 +76,15 @@
           }
         }
       },
+      "missing_tenses": ["futuro", "condizionale", "congiuntivo", "imperativo"],
       "frequency_rank": 2,
       "category": "essential"
     },
     "go": {
       "type": "verb", 
       "translations": ["andare"],
+      "regularity": "irregular",
+      "auxiliary": "essere",
       "conjugations": {
         "andare": {
           "presente": {
@@ -97,12 +105,15 @@
           }
         }
       },
+      "missing_tenses": ["imperfetto", "futuro", "condizionale", "congiuntivo", "imperativo"],
       "frequency_rank": 3,
       "category": "essential"
     },
     "do": {
       "type": "verb",
       "translations": ["fare"],
+      "regularity": "irregular",
+      "auxiliary": "avere",
       "conjugations": {
         "fare": {
           "presente": {
@@ -115,12 +126,15 @@
           }
         }
       },
+      "missing_tenses": ["passato_prossimo", "imperfetto", "futuro", "condizionale", "congiuntivo", "imperativo"],
       "frequency_rank": 4,
       "category": "essential"
     },
     "say": {
       "type": "verb",
       "translations": ["dire", "parlare"],
+      "regularity": "irregular",
+      "auxiliary": "avere",
       "conjugations": {
         "dire": {
           "presente": {
@@ -133,12 +147,16 @@
           }
         }
       },
+      "missing_tenses": ["passato_prossimo", "imperfetto", "futuro", "condizionale", "congiuntivo", "imperativo"],
       "frequency_rank": 5,
-      "category": "essential"
+      "category": "essential",
+      "notes": "dire = to say/tell, parlare = to speak/talk"
     },
     "see": {
       "type": "verb",
       "translations": ["vedere"],
+      "regularity": "irregular",
+      "auxiliary": "avere",
       "conjugations": {
         "vedere": {
           "presente": {
@@ -151,12 +169,15 @@
           }
         }
       },
+      "missing_tenses": ["passato_prossimo", "imperfetto", "futuro", "condizionale", "congiuntivo", "imperativo"],
       "frequency_rank": 6,
       "category": "essential"
     },
     "know": {
       "type": "verb",
       "translations": ["sapere", "conoscere"],
+      "regularity": "irregular",
+      "auxiliary": "avere",
       "conjugations": {
         "sapere": {
           "presente": {
@@ -179,6 +200,7 @@
           }
         }
       },
+      "missing_tenses": ["passato_prossimo", "imperfetto", "futuro", "condizionale", "congiuntivo", "imperativo"],
       "frequency_rank": 7,
       "category": "essential", 
       "notes": "sapere = know facts, conoscere = know people/places"

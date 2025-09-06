@@ -192,6 +192,65 @@ print(vm.generate_changelog_markdown())
 - **Categories**: 8 (essential, greetings, basic_needs, time, places, etc.)
 - **Most Recent Version**: v1.0.0
 
+## 🔄 Verb Conjugation Status
+
+### ✅ **Implemented Tenses**
+- **Presente** (Present): Complete for all 7 verbs
+- **Passato Prossimo** (Present Perfect): Complete for essere, avere, andare
+- **Imperfetto** (Imperfect): Complete for essere, avere
+
+### 📋 **Missing Tenses TODO List**
+
+#### **High Priority (Essential for Basic Communication)**
+- [ ] **Futuro Semplice** (Future Simple) - "I will be/have/go"
+  - `essere`: sarò, sarai, sarà, saremo, sarete, saranno
+  - `avere`: avrò, avrai, avrà, avremo, avrete, avranno
+  - `andare`: andrò, andrai, andrà, andremo, andrete, andranno
+  - `fare`: farò, farai, farà, faremo, farete, faranno
+  - `dire`: dirò, dirai, dirà, diremo, direte, diranno
+  - `vedere`: vedrò, vedrai, vedrà, vedremo, vedrete, vedranno
+  - `sapere`: saprò, saprai, saprà, sapremo, saprete, sapranno
+
+#### **Medium Priority (Polite Speech and Hypotheticals)**
+- [ ] **Condizionale Presente** (Conditional Present) - "I would be/have/go"
+  - Essential for polite requests and hypothetical situations
+  - All 7 verbs need implementation
+
+- [ ] **Imperativo** (Imperative) - Commands "Be! Have! Go!"
+  - Critical for everyday instructions and requests
+  - Forms: tu, Lei, noi, voi
+
+#### **Lower Priority (Advanced Conversation)**
+- [ ] **Congiuntivo Presente** (Present Subjunctive) - Doubt, emotion, opinion
+  - Used after "che" in dependent clauses
+  - Important for fluent Italian but not essential initially
+
+- [ ] **Congiuntivo Imperfetto** (Imperfect Subjunctive) - Past hypotheticals
+  - Advanced grammar for sophisticated expression
+
+- [ ] **Passato Remoto** (Simple Past) - Historical/literary past
+  - More common in Southern Italy and formal writing
+
+#### **Completion Status by Verb**
+
+| Verb | Presente | Pass.Pross. | Imperfetto | Futuro | Condiz. | Imper. | Congiunt. |
+|------|----------|-------------|------------|--------|---------|--------|-----------|
+| essere | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| avere | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| andare | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| fare | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| dire | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| vedere | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| sapere | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| conoscere | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+
+### 🎯 **Next Development Priorities**
+1. **Complete Imperfetto** for remaining 5 verbs (andare, fare, dire, vedere, sapere)
+2. **Add Passato Prossimo** for remaining 5 verbs  
+3. **Implement Futuro** for all 7 verbs (most requested tense)
+4. **Add Condizionale** for polite conversation
+5. **Implement Imperativo** for commands and instructions
+
 ## 🎯 Learning Approach
 
 This dictionary follows the **Pareto Principle (80/20 rule)**:
