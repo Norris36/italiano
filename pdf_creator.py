@@ -186,11 +186,11 @@ class QuizPDFGenerator:
         """Generate dense, tabular PDF that fits everything on one page."""
         c = canvas.Canvas(self.output_filename, pagesize=self.page_size)
         
-        # Ultra-minimal margins for maximum space utilization
-        left_margin = 15
-        right_margin = 15  
-        top_margin = 20
-        bottom_margin = 25
+        # Standard 1.27cm margins all around (36 points)
+        left_margin = 36
+        right_margin = 36  
+        top_margin = 36
+        bottom_margin = 36
         
         # Calculate available space
         page_width = self.width - left_margin - right_margin
@@ -262,7 +262,7 @@ class QuizPDFGenerator:
         
         # Simple answers at very bottom - upside down
         c.saveState()
-        c.translate(self.width/2, 15)  # Very bottom
+        c.translate(self.width/2, 20)  # Just above bottom margin
         c.rotate(180)
         c.setFont("Helvetica", 5)
         c.setFillColor(colors.HexColor('#666666'))
