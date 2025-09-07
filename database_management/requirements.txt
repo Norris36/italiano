@@ -1,0 +1,20 @@
+# Database Management Requirements
+# Required packages for PostgreSQL integration with pandas
+
+# Core database connectivity
+psycopg2-binary>=2.9.0
+SQLAlchemy>=2.0.0
+
+# Data manipulation and analysis  
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Environment management
+python-dotenv>=1.0.0
+
+# Optional: Database administration
+pgcli>=3.5.0  # PostgreSQL command line interface
+
+# Development and testing
+pytest>=7.0.0
+pytest-postgresql>=5.0.0
