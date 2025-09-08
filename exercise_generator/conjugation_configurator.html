@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Italian Conjugation Sheet Configurator</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: var(--primary-color);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .main-content {
+            display: flex;
+            min-height: 70vh;
+        }
+
+        .controls {
+            width: 350px;
+            background: #f8f9fa;
+            padding: 30px;
+            border-right: 1px solid #e9ecef;
+            overflow-y: auto;
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .control-group input,
+        .control-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .control-group input:focus,
+        .control-group select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+        }
+
+        .button {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.3s;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .button:hover {
+            background: #2980b9;
+        }
+
+        .button.success {
+            background: var(--success-color);
+        }
+
+        .button.success:hover {
+            background: #229954;
+        }
+
+        .button.danger {
+            background: var(--danger-color);
+        }
+
+        .button.danger:hover {
+            background: #c0392b;
+        }
+
+        .preview-area {
+            flex: 1;
+            padding: 30px;
+            background: white;
+            position: relative;
+        }
+
+        .preview-container {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: white;
+            min-height: 500px;
+            position: relative;
+            overflow: auto;
+        }
+
+        .a4-preview {
+            width: 210mm;
+            height: 297mm;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: var(--page-margin, 1.27cm);
+            transform: scale(0.4);
+            transform-origin: top center;
+            font-size: var(--base-font-size, 10px);
+        }
+
+        .conjugation-table {
+            margin-bottom: var(--table-margin, 15px);
+            border: 1px solid #ddd;
+            border-collapse: collapse;
+            width: 100%;
+            font-size: var(--table-font-size, 9px);
+        }
+
+        .conjugation-table th,
+        .conjugation-table td {
+            border: 1px solid #ddd;
+            padding: var(--cell-padding, 3px);
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .conjugation-table th {
+            background: var(--header-bg, #f8f9fa);
+            font-weight: bold;
+        }
+
+        .verb-header {
+            background: var(--primary-color);
+            color: white;
+            font-size: var(--header-font-size, 11px);
+            font-weight: bold;
+        }
+
+        .missing-conjugation {
+            background: #fff3cd !important;
+            border: 2px dashed #ffc107 !important;
+        }
+
+        .stats-bar {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            font-size: 14px;
+        }
+
+        .dimensions-display {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .tense-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+        }
+
+        @media print {
+            body { background: white; padding: 0; margin: 0; }
+            .controls, .stats-bar { display: none !important; }
+            .main-content { display: block; }
+            .preview-area { padding: 0; }
+            .a4-preview {
+                transform: none;
+                width: 100%;
+                height: 100%;
+                box-shadow: none;
+                margin: 0;
+            }
+            .preview-container { border: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🇮🇹 Italian Conjugation Sheet Configurator</h1>
+            <p>Configure dimensions and layout for maximum density conjugation practice sheets</p>
+        </div>
+
+        <div class="main-content">
+            <div class="controls">
+                <div class="control-group">
+                    <label>📏 Page Margins (cm)</label>
+                    <input type="number" id="pageMargin" value="1.27" step="0.1" min="0.5" max="3">
+                </div>
+
+                <div class="control-group">
+                    <label>📝 Base Font Size (px)</label>
+                    <input type="number" id="baseFontSize" value="10" step="1" min="6" max="16">
+                </div>
+
+                <div class="control-group">
+                    <label>📊 Table Font Size (px)</label>
+                    <input type="number" id="tableFontSize" value="9" step="1" min="5" max="14">
+                </div>
+
+                <div class="control-group">
+                    <label>📐 Cell Padding (px)</label>
+                    <input type="number" id="cellPadding" value="3" step="1" min="1" max="8">
+                </div>
+
+                <div class="control-group">
+                    <label>📏 Table Margin (px)</label>
+                    <input type="number" id="tableMargin" value="15" step="1" min="5" max="30">
+                </div>
+
+                <div class="control-group">
+                    <label>🔢 Number of Verbs</label>
+                    <input type="number" id="verbCount" value="12" step="1" min="4" max="20">
+                </div>
+
+                <div class="control-group">
+                    <label>❓ Missing Conjugations per Verb</label>
+                    <input type="number" id="missingCount" value="2" step="1" min="1" max="4">
+                </div>
+
+                <div class="control-group">
+                    <label>⏰ Tenses to Include</label>
+                    <div class="tense-selector">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="presente" checked>
+                            <label for="presente">Presente</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="imperfetto">
+                            <label for="imperfetto">Imperfetto</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="futuro">
+                            <label for="futuro">Futuro</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="passato">
+                            <label for="passato">Passato P.</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>🎲 Verb Selection</label>
+                    <select id="verbSelection">
+                        <option value="random">Random Verbs</option>
+                        <option value="frequent">Most Frequent</option>
+                        <option value="irregular">Irregular Only</option>
+                        <option value="regular">Regular Only</option>
+                    </select>
+                </div>
+
+                <button class="button" onclick="generatePreview()">🔄 Update Preview</button>
+                <button class="button success" onclick="saveConfiguration()">💾 Save Config</button>
+                <button class="button" onclick="exportToPython()">🐍 Export to Python</button>
+                <button class="button" onclick="printSheet()">🖨️ Print Sheet</button>
+                <button class="button danger" onclick="resetToDefaults()">🔄 Reset</button>
+
+                <div class="dimensions-display" id="dimensionsDisplay">
+                    <!-- Dimensions will be displayed here -->
+                </div>
+            </div>
+
+            <div class="preview-area">
+                <div class="preview-container">
+                    <div class="a4-preview" id="a4Preview">
+                        <!-- Conjugation tables will be generated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-bar" id="statsBar">
+        Tables: 0 | Fit Score: 0% | Density: 0
+    </div>
+
+    <script>
+        // Sample verb data - in production this would come from your database
+        const sampleVerbs = [
+            {
+                english: "be",
+                italian: "essere",
+                conjugations: {
+                    presente: { io: "sono", tu: "sei", "lui/lei": "è", noi: "siamo", voi: "siete", loro: "sono" },
+                    imperfetto: { io: "ero", tu: "eri", "lui/lei": "era", noi: "eravamo", voi: "eravate", loro: "erano" },
+                    futuro: { io: "sarò", tu: "sarai", "lui/lei": "sarà", noi: "saremo", voi: "sarete", loro: "saranno" }
+                },
+                regularity: "irregular"
+            },
+            {
+                english: "have",
+                italian: "avere", 
+                conjugations: {
+                    presente: { io: "ho", tu: "hai", "lui/lei": "ha", noi: "abbiamo", voi: "avete", loro: "hanno" },
+                    imperfetto: { io: "avevo", tu: "avevi", "lui/lei": "aveva", noi: "avevamo", voi: "avevate", loro: "avevano" },
+                    futuro: { io: "avrò", tu: "avrai", "lui/lei": "avrà", noi: "avremo", voi: "avrete", loro: "avranno" }
+                },
+                regularity: "irregular"
+            },
+            {
+                english: "go",
+                italian: "andare",
+                conjugations: {
+                    presente: { io: "vado", tu: "vai", "lui/lei": "va", noi: "andiamo", voi: "andate", loro: "vanno" },
+                    imperfetto: { io: "andavo", tu: "andavi", "lui/lei": "andava", noi: "andavamo", voi: "andavate", loro: "andavano" },
+                    futuro: { io: "andrò", tu: "andrai", "lui/lei": "andrà", noi: "andremo", voi: "andrete", loro: "andranno" }
+                },
+                regularity: "irregular"
+            },
+            {
+                english: "do",
+                italian: "fare",
+                conjugations: {
+                    presente: { io: "faccio", tu: "fai", "lui/lei": "fa", noi: "facciamo", voi: "fate", loro: "fanno" },
+                    imperfetto: { io: "facevo", tu: "facevi", "lui/lei": "faceva", noi: "facevamo", voi: "facevate", loro: "facevano" },
+                    futuro: { io: "farò", tu: "farai", "lui/lei": "farà", noi: "faremo", voi: "farete", loro: "faranno" }
+                },
+                regularity: "irregular"
+            },
+            {
+                english: "eat",
+                italian: "mangiare",
+                conjugations: {
+                    presente: { io: "mangio", tu: "mangi", "lui/lei": "mangia", noi: "mangiamo", voi: "mangiate", loro: "mangiano" },
+                    imperfetto: { io: "mangiavo", tu: "mangiavi", "lui/lei": "mangiava", noi: "mangiavamo", voi: "mangiavate", loro: "mangiavano" },
+                    futuro: { io: "mangerò", tu: "mangerai", "lui/lei": "mangerà", noi: "mangeremo", voi: "mangerete", loro: "mangeranno" }
+                },
+                regularity: "regular"
+            },
+            {
+                english: "speak",
+                italian: "parlare",
+                conjugations: {
+                    presente: { io: "parlo", tu: "parli", "lui/lei": "parla", noi: "parliamo", voi: "parlate", loro: "parlano" },
+                    imperfetto: { io: "parlavo", tu: "parlavi", "lui/lei": "parlava", noi: "parlavamo", voi: "parlavate", loro: "parlavano" },
+                    futuro: { io: "parlerò", tu: "parlerai", "lui/lei": "parlerà", noi: "parleremo", voi: "parlerete", loro: "parleranno" }
+                },
+                regularity: "regular"
+            }
+        ];
+
+        let currentConfig = {
+            pageMargin: 1.27,
+            baseFontSize: 10,
+            tableFontSize: 9,
+            cellPadding: 3,
+            tableMargin: 15,
+            verbCount: 12,
+            missingCount: 2,
+            tenses: ['presente'],
+            verbSelection: 'random'
+        };
+
+        function updateCSS() {
+            const root = document.documentElement;
+            root.style.setProperty('--page-margin', `${currentConfig.pageMargin}cm`);
+            root.style.setProperty('--base-font-size', `${currentConfig.baseFontSize}px`);
+            root.style.setProperty('--table-font-size', `${currentConfig.tableFontSize}px`);
+            root.style.setProperty('--cell-padding', `${currentConfig.cellPadding}px`);
+            root.style.setProperty('--table-margin', `${currentConfig.tableMargin}px`);
+            root.style.setProperty('--header-font-size', `${currentConfig.tableFontSize + 1}px`);
+        }
+
+        function readConfigFromUI() {
+            currentConfig.pageMargin = parseFloat(document.getElementById('pageMargin').value);
+            currentConfig.baseFontSize = parseInt(document.getElementById('baseFontSize').value);
+            currentConfig.tableFontSize = parseInt(document.getElementById('tableFontSize').value);
+            currentConfig.cellPadding = parseInt(document.getElementById('cellPadding').value);
+            currentConfig.tableMargin = parseInt(document.getElementById('tableMargin').value);
+            currentConfig.verbCount = parseInt(document.getElementById('verbCount').value);
+            currentConfig.missingCount = parseInt(document.getElementById('missingCount').value);
+            currentConfig.verbSelection = document.getElementById('verbSelection').value;
+
+            // Get selected tenses
+            currentConfig.tenses = [];
+            if (document.getElementById('presente').checked) currentConfig.tenses.push('presente');
+            if (document.getElementById('imperfetto').checked) currentConfig.tenses.push('imperfetto');
+            if (document.getElementById('futuro').checked) currentConfig.tenses.push('futuro');
+            if (document.getElementById('passato').checked) currentConfig.tenses.push('passato');
+        }
+
+        function generateConjugationTable(verb, tense, missingCells) {
+            const persons = ['io', 'tu', 'lui/lei', 'noi', 'voi', 'loro'];
+            const conjugations = verb.conjugations[tense] || {};
+            
+            let html = `
+                <table class="conjugation-table">
+                    <thead>
+                        <tr>
+                            <th class="verb-header" colspan="7">${verb.english} → ${verb.italian} (${tense})</th>
+                        </tr>
+                        <tr>
+                            <th>Infinitive</th>
+                            ${persons.map(person => `<th>${person}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>${verb.italian}</strong></td>
+                            ${persons.map(person => {
+                                const isMissing = missingCells.includes(person);
+                                const conjugation = conjugations[person] || '???';
+                                return `<td class="${isMissing ? 'missing-conjugation' : ''}">${isMissing ? '_____' : conjugation}</td>`;
+                            }).join('')}
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+            
+            return html;
+        }
+
+        function getRandomMissingCells(count) {
+            const persons = ['io', 'tu', 'lui/lei', 'noi', 'voi', 'loro'];
+            const shuffled = persons.sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+
+        function generatePreview() {
+            readConfigFromUI();
+            updateCSS();
+            
+            const preview = document.getElementById('a4Preview');
+            let html = '';
+            
+            const verbsToUse = sampleVerbs.slice(0, Math.min(currentConfig.verbCount, sampleVerbs.length));
+            
+            verbsToUse.forEach(verb => {
+                currentConfig.tenses.forEach(tense => {
+                    if (verb.conjugations[tense]) {
+                        const missingCells = getRandomMissingCells(currentConfig.missingCount);
+                        html += generateConjugationTable(verb, tense, missingCells);
+                    }
+                });
+            });
+            
+            preview.innerHTML = html;
+            updateStats();
+            updateDimensionsDisplay();
+        }
+
+        function updateStats() {
+            const tables = document.querySelectorAll('.conjugation-table').length;
+            const missingCells = document.querySelectorAll('.missing-conjugation').length;
+            
+            // Simple fit score calculation
+            const maxTables = 20; // Estimated maximum
+            const fitScore = Math.min(100, (tables / maxTables) * 100);
+            
+            document.getElementById('statsBar').innerHTML = 
+                `Tables: ${tables} | Missing: ${missingCells} | Fit Score: ${fitScore.toFixed(0)}% | Density: ${(tables * 7).toFixed(0)} cells`;
+        }
+
+        function updateDimensionsDisplay() {
+            document.getElementById('dimensionsDisplay').innerHTML = `
+                Page Margin: ${currentConfig.pageMargin}cm
+                Base Font: ${currentConfig.baseFontSize}px
+                Table Font: ${currentConfig.tableFontSize}px
+                Cell Padding: ${currentConfig.cellPadding}px
+                Table Margin: ${currentConfig.tableMargin}px
+                Verbs: ${currentConfig.verbCount}
+                Missing/Verb: ${currentConfig.missingCount}
+                Tenses: ${currentConfig.tenses.join(', ')}
+            `;
+        }
+
+        function saveConfiguration() {
+            readConfigFromUI();
+            localStorage.setItem('conjugationConfig', JSON.stringify(currentConfig));
+            alert('✅ Configuration saved!');
+        }
+
+        function loadConfiguration() {
+            const saved = localStorage.getItem('conjugationConfig');
+            if (saved) {
+                currentConfig = JSON.parse(saved);
+                
+                // Update UI elements
+                document.getElementById('pageMargin').value = currentConfig.pageMargin;
+                document.getElementById('baseFontSize').value = currentConfig.baseFontSize;
+                document.getElementById('tableFontSize').value = currentConfig.tableFontSize;
+                document.getElementById('cellPadding').value = currentConfig.cellPadding;
+                document.getElementById('tableMargin').value = currentConfig.tableMargin;
+                document.getElementById('verbCount').value = currentConfig.verbCount;
+                document.getElementById('missingCount').value = currentConfig.missingCount;
+                document.getElementById('verbSelection').value = currentConfig.verbSelection;
+                
+                // Update checkboxes
+                document.getElementById('presente').checked = currentConfig.tenses.includes('presente');
+                document.getElementById('imperfetto').checked = currentConfig.tenses.includes('imperfetto');
+                document.getElementById('futuro').checked = currentConfig.tenses.includes('futuro');
+                document.getElementById('passato').checked = currentConfig.tenses.includes('passato');
+                
+                generatePreview();
+            }
+        }
+
+        function exportToPython() {
+            readConfigFromUI();
+            const pythonConfig = `
+# Generated configuration for Python exercise generator
+EXERCISE_CONFIG = {
+    'page_margin_cm': ${currentConfig.pageMargin},
+    'base_font_size': ${currentConfig.baseFontSize},
+    'table_font_size': ${currentConfig.tableFontSize},
+    'cell_padding': ${currentConfig.cellPadding},
+    'table_margin': ${currentConfig.tableMargin},
+    'verb_count': ${currentConfig.verbCount},
+    'missing_count': ${currentConfig.missingCount},
+    'tenses': ${JSON.stringify(currentConfig.tenses)},
+    'verb_selection': '${currentConfig.verbSelection}'
+}`;
+            
+            // Create download
+            const blob = new Blob([pythonConfig], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'exercise_config.py';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function printSheet() {
+            window.print();
+        }
+
+        function resetToDefaults() {
+            currentConfig = {
+                pageMargin: 1.27,
+                baseFontSize: 10,
+                tableFontSize: 9,
+                cellPadding: 3,
+                tableMargin: 15,
+                verbCount: 12,
+                missingCount: 2,
+                tenses: ['presente'],
+                verbSelection: 'random'
+            };
+            loadConfiguration();
+        }
+
+        // Event listeners for real-time updates
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add event listeners to all controls
+            const controls = ['pageMargin', 'baseFontSize', 'tableFontSize', 'cellPadding', 'tableMargin', 'verbCount', 'missingCount'];
+            controls.forEach(id => {
+                document.getElementById(id).addEventListener('input', generatePreview);
+            });
+            
+            document.getElementById('verbSelection').addEventListener('change', generatePreview);
+            
+            // Checkbox event listeners
+            ['presente', 'imperfetto', 'futuro', 'passato'].forEach(id => {
+                document.getElementById(id).addEventListener('change', generatePreview);
+            });
+            
+            // Load saved configuration or generate initial preview
+            loadConfiguration();
+            if (!localStorage.getItem('conjugationConfig')) {
+                generatePreview();
+            }
+        });
+    </script>
+</body>
+</html>

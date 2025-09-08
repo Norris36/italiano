@@ -15,12 +15,12 @@ import json
 
 # Current version
 MAJOR = 1
-MINOR = 0  
+MINOR = 1  
 PATCH = 0
 
 VERSION = f"{MAJOR}.{MINOR}.{PATCH}"
-VERSION_DATE = "2025-09-04"
-VERSION_DESCRIPTION = "Initial release with core dictionary functionality"
+VERSION_DATE = "2025-09-08"
+VERSION_DESCRIPTION = "Added interactive HTML exercise generator with CSV support and maximum density optimization"
 
 class VersionManager:
     """
