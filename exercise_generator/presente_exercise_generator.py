@@ -57,12 +57,12 @@ class PresenteExerciseGenerator:
         returns: Dict with default configuration
         """
         return {
-            'page_margin_cm': 1.0,
+            'page_margin_cm': 0.8,
             'base_font_size': 9,
-            'table_font_size': 8,
-            'cell_padding': 2,
-            'table_margin': 8,
-            'verb_count': 18,
+            'table_font_size': 7,
+            'cell_padding': 1,
+            'table_margin': 5,
+            'verb_count': 35,
             'missing_count': 2,
             'verb_selection': 'frequent',
             'show_infinitive': True,
@@ -226,32 +226,60 @@ class PresenteExerciseGenerator:
         
         return {'presente': positions_to_hide}
     
-    def generate_html_table(self, verb: Dict, missing_positions: Dict, show_answers: bool = False) -> str:
+    def generate_verb_row(self, verb: Dict, missing_positions: Dict, show_answers: bool = False) -> str:
         """
-        Generate HTML table for single verb with static header
+        Generate HTML table row for single verb
         ~~~
-        - Create compact conjugation table
-        - Use static header with six person types
+        - Create single row with verb info and conjugations
+        - Include regularity marker and English translation
         - Hide specified conjugations if not showing answers
-        - Minimize vertical space for maximum density
+        - Maximize space efficiency with single row format
         ~~~
-        returns: str with HTML table
+        returns: str with HTML table row
         """
         conjugations = verb['conjugations']['presente']
         missing_for_tense = missing_positions.get('presente', [])
         
-        # Compact header with just essential info
+        # Compact verb info with regularity marker
         regularity_marker = "●" if 'ireg' in verb.get('regularity', '').lower() else "○"
-        header_text = f"{verb['italian']} {regularity_marker} {verb['english']}"
+        verb_info = f"{verb['italian']} {regularity_marker}"
+        
+        row_parts = [f'<tr>']
+        row_parts.append(f'<td class="verb-info-cell">{verb_info}</td>')
+        row_parts.append(f'<td class="english-cell">{verb["english"]}</td>')
+        
+        # Conjugation cells for each person type (static order)
+        for person in self.person_headers:
+            conjugation = conjugations.get(person, '???')
+            is_missing = person in missing_for_tense and not show_answers
+            cell_class = 'missing-conjugation' if is_missing else 'conjugation-cell'
+            cell_content = '_____' if is_missing else conjugation
+            
+            row_parts.append(f'<td class="{cell_class}">{cell_content}</td>')
+        
+        row_parts.append('</tr>')
+        
+        return ''.join(row_parts)
+    
+    def generate_single_table(self, selected_verbs: List[Dict], missing_data: Dict, show_answers: bool = False) -> str:
+        """
+        Generate single table with all verbs as rows
+        ~~~
+        - Create one table with header and multiple verb rows
+        - Maximize space efficiency by eliminating repeated headers
+        - Use static header with six person types
+        - Each row represents one verb with all conjugations
+        ~~~
+        returns: str with complete HTML table
+        """
+        answer_class = 'answer-sheet' if show_answers else ''
         
         html_parts = [f'''
-            <table class="conjugation-table">
+            <table class="conjugation-table {answer_class}">
                 <thead>
-                    <tr>
-                        <th class="verb-header" colspan="7">{header_text}</th>
-                    </tr>
-                    <tr class="person-header">
-                        <th>Infinitive</th>
+                    <tr class="main-header">
+                        <th>Verb</th>
+                        <th>English</th>
                         <th>io</th>
                         <th>tu</th>
                         <th>lui/lei</th>
@@ -261,21 +289,14 @@ class PresenteExerciseGenerator:
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td class="infinitive-cell">{verb['italian']}</td>
         ''']
         
-        # Conjugation cells for each person type (static order)
-        for person in self.person_headers:
-            conjugation = conjugations.get(person, '???')
-            is_missing = person in missing_for_tense and not show_answers
-            cell_class = 'missing-conjugation' if is_missing else ''
-            cell_content = '_____' if is_missing else conjugation
-            
-            html_parts.append(f'<td class="{cell_class}">{cell_content}</td>')
+        # Add each verb as a row
+        for verb in selected_verbs:
+            missing_positions = missing_data[f"{verb['english']}_{verb['italian']}"]
+            html_parts.append(self.generate_verb_row(verb, missing_positions, show_answers))
         
         html_parts.append('''
-                    </tr>
                 </tbody>
             </table>
         ''')
@@ -353,20 +374,33 @@ class PresenteExerciseGenerator:
             }}
             
             .conjugation-table th {{
-                background: #f8f9fa;
+                background: #2c3e50;
+                color: white;
                 font-weight: bold;
+                font-size: {self.config['table_font_size']}px;
             }}
             
-            .verb-header {{
+            .main-header {{
                 background: #2c3e50 !important;
                 color: white !important;
                 font-size: {self.config['table_font_size'] + 1}px;
                 font-weight: bold;
             }}
             
-            .infinitive-cell {{
+            .verb-info-cell {{
                 background: #e9ecef;
                 font-weight: bold;
+                white-space: nowrap;
+            }}
+            
+            .english-cell {{
+                background: #f8f9fa;
+                font-style: italic;
+                white-space: nowrap;
+            }}
+            
+            .conjugation-cell {{
+                background: white;
             }}
             
             .missing-conjugation {{
@@ -456,9 +490,8 @@ class PresenteExerciseGenerator:
                 <div class="tables-container">
         """
         
-        for verb in selected_verbs:
-            missing_positions = missing_data[f"{verb['english']}_{verb['italian']}"]
-            html_content += self.generate_html_table(verb, missing_positions, show_answers=False)
+        # Generate single table with all verbs as rows
+        html_content += self.generate_single_table(selected_verbs, missing_data, show_answers=False)
         
         html_content += """
                 </div>
@@ -507,9 +540,8 @@ class PresenteExerciseGenerator:
                 <div class="tables-container">
         """
         
-        for verb in selected_verbs:
-            missing_positions = missing_data[f"{verb['english']}_{verb['italian']}"]
-            html_content += self.generate_html_table(verb, missing_positions, show_answers=True)
+        # Generate single table with all verbs as rows (answers shown)
+        html_content += self.generate_single_table(selected_verbs, missing_data, show_answers=True)
         
         html_content += """
                 </div>

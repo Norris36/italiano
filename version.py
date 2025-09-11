@@ -15,12 +15,12 @@ import json
 
 # Current version
 MAJOR = 1
-MINOR = 1  
+MINOR = 2  
 PATCH = 0
 
 VERSION = f"{MAJOR}.{MINOR}.{PATCH}"
 VERSION_DATE = "2025-09-08"
-VERSION_DESCRIPTION = "Added interactive HTML exercise generator with CSV support and maximum density optimization"
+VERSION_DESCRIPTION = "Optimized to single table format with maximum space efficiency - 35+ verbs per page"
 
 class VersionManager:
     """
